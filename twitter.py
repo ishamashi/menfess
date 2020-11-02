@@ -9,6 +9,7 @@ from async_upload import VideoTweet
 
 
 # This class is a bunch of twitter function
+
 class Twitter:
 
     # Initializing tweepy
