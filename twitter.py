@@ -3,13 +3,22 @@ import constants
 import time
 import _json
 from requests_oauthlib import OAuth1
+
+from datetime import timezone, timedelta
 import requests
 import os
+import logging
 from async_upload import VideoTweet
 
 
 # This class is a bunch of twitter function
-
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+logfile = os.path.join(BASE_DIR, 'test.log')
+logging.basicConfig(
+    filename=logfile,
+    level=logging.INFO,
+    format="%(asctime)s:%(levelname)s:%(message)s"
+    )
 class Twitter:
 
     # Initializing tweepy
@@ -139,4 +148,20 @@ class Twitter:
             print(e)
             pass
 
+    # Notifies the DM sender. Modify your message here.
+    def senddm(self, i, dmsender, status, postid=None, rttime=None):
+        api = self.api
+        url = 'https://twitter.com/'+self.me.screen_name+'/status/'+str(postid)
+        if status == 'sent':
+            message = {'sent': 'Post was successfully sent at '+rttime.astimezone(timezone(timedelta(hours=7))).strftime("%Y-%m-%d %H:%M")+' WIB. Check your post here: '+url}
+        elif status == 'notsent':
+            message = {'notsent' : 'Post was not sent. Use the trigger prikitiw to send post.'}
+        else: message = {'wrong attachment' : 'Post was not sent. Send only picture attachment (not gif/video).'}
+
+        notifdm = api.send_direct_message(recipient_id=dmsender, text=message[status])
+        #api.destroy_direct_message(int(notifdm.id))
+        logging.info(f'DM No {i+1} was sent. Status = {status}')
+        time.sleep(10)
+        
+        return
 
